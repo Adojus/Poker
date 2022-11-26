@@ -12,7 +12,8 @@ package Poker;
 public class Round {
     private String[] firstPlayersCards;
     private String[] secondPlayersCards;
-    
+
+    public Round(){}
     public Round(String[] firstPlayersCards, String[] secondPlayersCards){
         this.firstPlayersCards=firstPlayersCards;
         this.secondPlayersCards=secondPlayersCards;
