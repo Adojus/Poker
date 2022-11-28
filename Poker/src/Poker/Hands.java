@@ -373,7 +373,7 @@ public class Hands{
     //sorts value array by occurences and values
     private int[] sortByOccurencesAndValues(int[] occurences, int[] values){
         for(int i=0;i<values.length-1;i++){
-            if(occurences[i]<occurences[i+1]){
+            if(occurences[i]>occurences[i+1]){
                 int tempOcc = occurences[i];
                 occurences[i]=occurences[i+1];
                 occurences[i+1]=tempOcc;
@@ -382,7 +382,7 @@ public class Hands{
                 values[i+1]=tempVal;
             }
             else if(occurences[i]==occurences[i+1]){
-                if(values[i]<values[i+1]){
+                if(values[i]>values[i+1]){
                     int tempVal = values[i];
                     values[i]=values[i+1];
                     values[i+1]=tempVal;
@@ -391,5 +391,57 @@ public class Hands{
         }
         return values;
     }
+    
+    //finds and returns correct full hand name
+    public String highestHandToPrint(){
+        switch(playerHandRating){
+            case 1:
+                return handName+" "+valuesToPrint[highestCardValues[highestCardValues.length-1]-2];
+            case 2:
+                if(highestBelongingValues[0]!=6)
+                    return "Pair of "+valuesToPrint[highestBelongingValues[highestBelongingValues.length-1]-2]+'s';
+                else
+                    return "Pair of "+valuesToPrint[highestBelongingValues[highestBelongingValues.length-1]-2]+"es";
+            case 3, 5:
+                return handName;
+            case 4:
+                if(highestBelongingValues[0]!=6)
+                    return "Three "+valuesToPrint[highestBelongingValues[highestBelongingValues.length-1]-2]+'s';
+                else
+                    return "Three "+valuesToPrint[highestBelongingValues[highestBelongingValues.length-1]-2]+"es";
+            case 6, 9, 10:
+                return handName+" W/ "+findSymbolName();
+            case 8:
+                if(highestBelongingValues[0]!=6)
+                    return "Four "+valuesToPrint[highestBelongingValues[highestBelongingValues.length-1]-2]+'s';
+                else
+                    return "Four "+valuesToPrint[highestBelongingValues[highestBelongingValues.length-1]-2]+"es";
+            case 7:
+                if(highestBelongingValues[0]!=6)
+                    return handName+" W/ three "+valuesToPrint[highestBelongingValues[highestBelongingValues.length-1]-2]+'s';
+                else
+                    return handName+" W/ three "+valuesToPrint[highestBelongingValues[highestBelongingValues.length-1]-2]+"es";
+                    
+        }
+        return "something else";
+    }
 
+    //finds and returns symbols full name
+    private String findSymbolName(){
+        String card = playerHand[0];
+        char symbol = card.charAt(1);
+        for(String symbolName: symbolsToPrint){
+            if(Character.toLowerCase(symbolName.charAt(0))==Character.toLowerCase(symbol)){
+                return symbolName;
+            }
+        }
+        return "No known symbol";
+    }
+    
+    //formats and returns cards in hand
+    public String handToString(){
+        String line;
+        line = String.format("%s %s %s %s %s", playerHand);
+        return line;
+    }
 }

@@ -1,7 +1,9 @@
 package Poker;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 */
 public class Poker {
     static final String file="poker.txt";//text file to read from
+    static final String resultsFile="Poker_Results.txt";//text file name to write to
     static final int playerCount = 2;//number of players per round
     static final int cardsPerPlayer=5;//number of cards per player
     static ArrayList<Round> roundList = new ArrayList<Round>();//list of all rounds
@@ -24,6 +27,7 @@ public class Poker {
             System.out.println("Couldn't read file.");
             System.exit(0);
         }
+        createResultsFile();
         play();
         
     }
@@ -64,13 +68,7 @@ public class Poker {
             player1.setHighestBelongingValues(thisHand.getHighestBelongingValues());
             
             System.out.println(player1.handToString()+"    PLAYER 1\n"+
-            player1.getHighestHand()+" "+thisHand.getValueToPrint(player1.getHighestCard()));
-            System.out.println("Highest card value: "+player1.getHighestCard());
-            
-            if(player1.getHighestBelongingValues()!=null)
-//            for(int j=0;j<player1.getHighestBelongingValues().length;j++){
-//                System.out.println(player1.getHighestBelongingValues()[j]);
-//            }
+            thisHand.highestHandToPrint());
             
             System.out.println("");
             
@@ -80,20 +78,21 @@ public class Poker {
             player2.setHighestCard(thisHand2.getHighestCardValue());
             player2.setHighestCards(thisHand2.getHighestCardValues());
             player2.setHighestBelongingValues(thisHand2.getHighestBelongingValues());
-            
-            System.out.println(player2.handToString()+"    PLAYER 2\n"+
-            player2.getHighestHand()+" "+thisHand.getValueToPrint(player2.getHighestCard()));
-            System.out.println("Highest card value: "+player2.getHighestCard());
 
+            System.out.println(player2.handToString()+"    PLAYER 2\n"+
+            thisHand2.highestHandToPrint());
+            
             if(thisHand.getHandRating()!=thisHand2.getHandRating()){
                 if(thisHand.getHandRating()<thisHand2.getHandRating()){
                     System.out.println("\nPLAYER 2 WINS "+player2.getHighestHand());
                     player2.addToWinCount();
+                    printToFile(i+1, thisHand, thisHand2, "Player 2");
                     isRoundOver=true;
                 }
                 else if(isRoundOver!=true){
                     System.out.println("\nPLAYER 1 WINS "+player1.getHighestHand());
                     player1.addToWinCount();
+                    printToFile(i+1, thisHand, thisHand2, "Player 1");
                     isRoundOver=true;
                 }
             }
@@ -103,9 +102,9 @@ public class Poker {
                 
                 if(whichPlayerWins(player1.getHighestBelongingValues(),
                         player2.getHighestBelongingValues())==1 && isRoundOver!=true){
-                    System.out.println("PLAYER1 HIGHER VALUES");
                     System.out.println("\nPLAYER 1 WINS "+player1.getHighestHand());
                     player1.addToWinCount();
+                    printToFile(i+1, thisHand, thisHand2, "Player 1");
                     isRoundOver=true;
                     
                 }
@@ -113,22 +112,26 @@ public class Poker {
                             player2.getHighestBelongingValues())==2 && isRoundOver!=true){
                         System.out.println("\nPLAYER 2 WINS "+player2.getHighestHand());
                         player2.addToWinCount();
+                        printToFile(i+1, thisHand, thisHand2, "Player 2");
                         isRoundOver=true;
                     }
                 if(whichPlayerWins(player1.getHighestCards(),
                         player2.getHighestCards())==1 && isRoundOver!=true){
                     System.out.println("\nPLAYER 1 WINS "+player1.getHighestHand());
                     player1.addToWinCount();
+                    printToFile(i+1, thisHand, thisHand2, "Player 1");
                     isRoundOver=true;
                 }    
                 else if(whichPlayerWins(player1.getHighestCards(),
                         player2.getHighestCards())==2 && isRoundOver!=true){
                     System.out.println("\nPLAYER 2 WINS "+player2.getHighestHand());
                     player2.addToWinCount();
+                    printToFile(i+1, thisHand, thisHand2, "Player 2");
                     isRoundOver=true;
                 }
                 else if(isRoundOver!=true){
                     System.out.println("\nTIE");
+                    printToFile(i+1, thisHand, thisHand2, "TIE");
                 }
                 
             }
@@ -138,33 +141,86 @@ public class Poker {
                         player2.getHighestCards())==1){
                     System.out.println("\nPLAYER 1 WINS "+player1.getHighestHand());
                     player1.addToWinCount();
+                    printToFile(i+1, thisHand, thisHand2, "Player 1");
                 }    
                 else if(whichPlayerWins(player1.getHighestCards(),
                         player2.getHighestCards())==2){
                     System.out.println("\nPLAYER 2 WINS "+player2.getHighestHand());
                     player2.addToWinCount();
+                    printToFile(i+1, thisHand, thisHand2, "Player 2");
                 }
                 else{
                     System.out.println("\nTIE");
+                    printToFile(i+1, thisHand, thisHand2, "TIE");
                 }
             }
             else{
                 System.out.println("\nTIE");
+                printToFile(i+1, thisHand, thisHand2, "TIE");
             }
                 
             System.out.println("\n-------------------------------");
         }
-        System.out.println("Player 1 wins: "+player1.getWinCount());
-        System.out.println("Player 2 wins: "+player2.getWinCount());
+        System.out.println("Player 1 total wins: "+player1.getWinCount());
+        
+        try
+            {
+                FileWriter file= new FileWriter(resultsFile,true);
+                BufferedWriter fr = new BufferedWriter(file);
+                String line;
+                line = String.format("Player 1 total win count: "+player1.getWinCount());
+                fr.write(line);
+                fr.close();
+            }
+            catch(Exception e){e.printStackTrace();}
     }
     
+    //Determining higher cards between players
     static int whichPlayerWins(int[] player1, int[] player2){
         for(int i= player1.length-1;i>=0;i--){
-            if(player1[i]>player2[i])
+            if(player1[i]>player2[i]){
                 return 1;
-            else if(player1[i]<player2[i]) 
+            }
+            else if(player1[i]<player2[i]) {
                 return 2;
+            }
         }
         return 0;
+    }
+    
+    //prints the top of the table to result file
+    static void createResultsFile(){
+        String top =
+              "------------------------------------------------------------------------------------\n"
+            + "  Hand                  Player 1                          Player 2          Winner  \n"
+            + "------------------------------------------------------------------------------------\n";
+            try
+            {
+                
+               FileWriter file= new FileWriter(resultsFile,false);
+               BufferedWriter fr = new BufferedWriter(file);
+               fr.write(top);
+               fr.close();
+            }
+            catch(Exception e){e.printStackTrace();}
+    }
+    
+    //adds round information to table in results file
+    static void printToFile(int hand, Hands player1, Hands player2, String winner){
+        try
+            {
+                FileWriter file= new FileWriter(resultsFile,true);
+                BufferedWriter fr = new BufferedWriter(file);
+                String line;
+                line = String.format(" %4d               %-32s  %-20s %8s  \n",
+                 hand, player1.handToString(), player2.handToString(), winner);
+                fr.write(line);
+
+                line = String.format("%35s %35s",player1.highestHandToPrint(),player2.highestHandToPrint()+"\n\n");
+                fr.write(line);
+
+                fr.close();
+            }
+            catch(Exception e){e.printStackTrace();}
     }
 }

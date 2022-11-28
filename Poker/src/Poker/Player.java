@@ -49,10 +49,12 @@ public class Player {
     //method to increase winCount by 1
     public void addToWinCount(){winCount=winCount+1;}
     
+    //returns formatted cards
     public String handToString(){
-    String line;
-    line = String.format("%s %s %s %s %s", cardsInHand);
-    return line;
+        String line;
+        line = String.format("%s %s %s %s %s", cardsInHand);
+        return line;
     }
+    
 }
 
