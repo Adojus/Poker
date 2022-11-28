@@ -5,7 +5,9 @@ package Poker;
 */
 public class Player {
     private String[] cardsInHand;//dealt cards
-    private String highestCard;//card with highest value
+    private int highestCard;//card with highest value
+    private int[] highestCards;
+    private int[] highestBelongingValues;
     private String highestHand;//highest hand in deck
     private int winCount = 0;//number of wins
     
@@ -23,10 +25,17 @@ public class Player {
     public void setCardsInHand(String[] cardsInHand){this.cardsInHand=cardsInHand;}
     
     //getter for highest card
-    public String getHighestCard(){return highestCard;}
+    public int getHighestCard(){return highestCard;}
     
     //setter for highest card
-    public void setHighestCard(String highestCard){this.highestCard=highestCard;}
+    public void setHighestCard(int highestCard){this.highestCard=highestCard;}
+    
+    public int[] getHighestCards(){return highestCards;}
+    public void setHighestCards(int[] highestCards){this.highestCards=highestCards;}
+    
+    public int[] getHighestBelongingValues(){return highestBelongingValues;}
+    public void setHighestBelongingValues(int[] highestBelongingValues)
+    {this.highestBelongingValues=highestBelongingValues;}
     
     //getter for highest hand
     public String getHighestHand(){return highestHand;}

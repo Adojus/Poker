@@ -2,6 +2,7 @@ package Poker;
 
 import java.util.*;
 import java.util.HashMap;
+import java.util.Arrays;
 
 /*
  * Class for determining players hand strength
@@ -17,7 +18,14 @@ public class Hands{
     private int[] possibleValues={2,3,4,5,6,7,8,9,10,11,12,13,14};
     private int playerHandRating=0;//players hand rating-the higher, the better
     private String handName;//players hands name
+    private int highestCardValue;
+    private int[] highestCardValues= new int[5];
+    private int[] highestBelongingValues;//highest values that belong to rated hand
     private String[] playerHand;//players cards
+    
+    private String[] symbolsToPrint={"Diamonds","Spades","Clubs","Hearts"};
+    private String[] valuesToPrint={"Two","Three","Four","Five","Six","Seven",
+                            "Eight","Nine","Ten","Jack","Queen","King","Ace"};
     
     //constructor
     public Hands(){
@@ -31,6 +39,12 @@ public class Hands{
         addPossibleHands();
         addPossibleCardValues();
         determineRating();
+        findHighestCard();
+        findHighestCards();
+    }
+    
+    public String getValueToPrint(int value){
+        return valuesToPrint[value-2];
     }
     
     //setter for players card array
@@ -44,6 +58,12 @@ public class Hands{
     
     //getter for hands name
     public String getHandName(){return handName;}
+    
+    //getter for highest valued card
+    public int getHighestCardValue(){return highestCardValue;}
+    public int[] getHighestCardValues(){return highestCardValues;}
+    
+    public int[] getHighestBelongingValues(){return highestBelongingValues;}
     
     //method that takes hand name and returns its key in map possibleHands
     public <K, V> String getKey(Integer handName)
@@ -107,10 +127,12 @@ public class Hands{
         else if(isFourOfAKind()){
             playerHandRating = possibleHands.get("Four of a Kind");
             handName = getKey(playerHandRating);
+            findHighestBelongingCards(1);
         }
         else if(isFullHouse()){
             playerHandRating = possibleHands.get("Full House");
             handName = getKey(playerHandRating);
+            findHighestBelongingCards(2);
         }
         else if(isFlush()){
             playerHandRating = possibleHands.get("Flush");
@@ -124,14 +146,17 @@ public class Hands{
         else if(isThreeOfAKind()){
             playerHandRating = possibleHands.get("Three of a Kind");
             handName = getKey(playerHandRating);
+            findHighestBelongingCards(1);
         }
         else if(isTwoPairs()){
             playerHandRating = possibleHands.get("Two Pairs");
             handName = getKey(playerHandRating);
+            findHighestBelongingCards(2);
         }
         else if(isOnePair()){
             playerHandRating = possibleHands.get("One Pair");
             handName = getKey(playerHandRating);
+            findHighestBelongingCards(1);
         }
         else{
             playerHandRating = possibleHands.get("Highest Card");
@@ -225,9 +250,7 @@ public class Hands{
     
     //checks if there is a gap of 5 values in the middle of possibleValues array
     private boolean isThereGap(){
-        //int maxGap=0;
         for(int i=0; i<possibleValues.length-1; i++){
-            //int currentGap=0;
             if(possibleValues[i]-possibleValues[i+1]<-5){
                 return true;
             }
@@ -241,7 +264,6 @@ public class Hands{
         int counter=0;
         for(String card : playerHand){
             for(int i=0; i<families.length; i++){
-                
                 if(card.charAt(0)==families[i]){
                     break;
                 }
@@ -274,4 +296,100 @@ public class Hands{
         return maxSameCards;
     }
     
+    //finds highest valued card in hand
+    private void findHighestCard(){
+        int highestValue=0;
+        for(String card: playerHand){
+            char cardValue = card.charAt(0);
+            int cardValueRating=possibleCardValues.get(cardValue);
+            if (cardValueRating > highestValue)
+                highestValue = cardValueRating;
+        }
+        highestCardValue=highestValue;
+    }
+    
+    //finds highest valued cards in hand and sorts them
+    private void findHighestCards(){
+        int[] highestValues={5,5,5,5,5};
+        int counter=0;
+        for(String card: playerHand){
+            char cardValue = card.charAt(0);
+            int cardValueRating=possibleCardValues.get(cardValue);
+            highestValues[counter] = cardValueRating;
+            counter++;
+        }
+        Arrays.sort(highestValues);
+        highestCardValues=highestValues;
+    }
+    
+    //finds different value families
+    private void findHighestBelongingCards(int size){
+        char[] families={0,0,0,0,0};
+        
+        for(String card : playerHand){
+            for(int i=0; i<families.length; i++){
+                if(card.charAt(0)==families[i]){
+                    break;
+                }
+                else if(families[i]==0){
+                    families[i]=card.charAt(0);
+                    break;
+                }
+            }
+        }
+        makeValuesArrayByOccurences(families,size);
+
+    } 
+    
+    //finds occurences of values and assigns values to highestBelongingValues
+    //array, which are sorted by occurences and values
+    private void makeValuesArrayByOccurences(char[] families,int size){
+        int[] highestBelongingVal=new int[size];
+        int[] highestOccurences=new int[size];
+        int counter=0;
+        int occurences=0;
+        
+        for(int i=0; i<families.length; i++){
+            occurences=0;
+            for(String card : playerHand){
+                if(card.charAt(0)==families[i]){
+                    occurences++;
+                }
+                else if(families[i]==0){
+                    break;
+                }
+            }    
+            if(occurences>1){
+                highestBelongingVal[counter]=possibleCardValues.get(families[i]);
+                highestOccurences[counter]=occurences;
+                counter++;
+            }
+        }
+        highestBelongingValues=sortByOccurencesAndValues(highestOccurences,
+        highestBelongingVal);
+        
+    }
+    
+    //sorts value array by occurences and values
+    private int[] sortByOccurencesAndValues(int[] occurences, int[] values){
+        for(int i=0;i<values.length-1;i++){
+            if(occurences[i]<occurences[i+1]){
+                int tempOcc = occurences[i];
+                occurences[i]=occurences[i+1];
+                occurences[i+1]=tempOcc;
+                int tempVal = values[i];
+                values[i]=values[i+1];
+                values[i+1]=tempVal;
+            }
+            else if(occurences[i]==occurences[i+1]){
+                if(values[i]<values[i+1]){
+                    int tempVal = values[i];
+                    values[i]=values[i+1];
+                    values[i+1]=tempVal;
+                }
+            }
+        }
+        return values;
+    }
+
 }
