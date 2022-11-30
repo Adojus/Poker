@@ -29,4 +29,5 @@
 
         The player with higher rated hand wins. If the hand rating is the same, arrays that are sorted by occurences of value (high to low) and then by value (high to low) are compared while iterating throught their elements. Which player has higher card sooner in the array wins. If the card values in the arrays were the same for both players, the game is a tie.
 2.    This solution uses the oop ideas of abstraction and encapsulation.
-3.    Technology that I used and was new to me was JUnit for testing the solution.
+3.    I like the implemented logic of Hands class, because It's accurately determining the rating and other information about the hand, that makes it easy to find the winner. I dislike Poker class method play(), it's not as clear, as other classes and methods, because it uses a lot of nesting and probably could be solved with less if statements.
+4.    Technology that I used and was new to me was JUnit for testing the solution.
